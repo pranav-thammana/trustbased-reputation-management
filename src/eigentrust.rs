@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use crate::graph::AdjacencyMatrix;
 use rand::distributions::{Distribution, Uniform};
+use std::{thread, mem};
+
 
 fn random_walk(iters: usize, obj: &AdjacencyMatrix) -> u32 {
     let mut rng = rand::thread_rng();
@@ -36,17 +38,26 @@ pub fn all_walks(walks: usize, iters: usize, obj: &AdjacencyMatrix) -> Vec<u32> 
     return result
 }
 
-pub fn analysis_flatten(results: &Vec<Vec<u32>>, obj: &AdjacencyMatrix) {
-    let mut final_result: Vec<u32> = Vec::new();
-    let mut temp = HashMap::new();
-    for i in results {
-        for j in i {
-            let HashEntry = temp.entry(*j).or_insert(0_u32);
-            *HashEntry += 1_u32;
+pub fn flatten(thread_handles: Vec<thread::JoinHandle<Vec<u32>>>, mut result: Vec<u32>) -> Vec<u32> {
+    for thread in thread_handles {
+        for answer in thread.join().unwrap() {
+            result.push(answer);
         }
     }
-    
+    result
+}
 
+pub fn analysis(results: &Vec<u32>, obj: &AdjacencyMatrix) {
+    let mut temp = HashMap::new();
+    for j in results {
+        let HashEntry = temp.entry(*j).or_insert(0_u32);
+        *HashEntry += 1_u32;
+    }
+    let mut final_result: Vec<(&u32, &u32)> = temp.iter().collect();
+    final_result.sort_by(|a, b| b.1.cmp(a.1)); // Requires 2nd element to be score
+    println!("The five most trusted nodes are {:?}", &final_result[0..5].iter().map(|x| *x.0).collect::<Vec<u32>>());
+    final_result.sort_by(|a, b| a.1.cmp(b.1)); // Requires 2nd element to be score
+    println!("The five least trusted nodes are {:?}", &final_result[0..5].iter().map(|x| *x.0).collect::<Vec<u32>>());
 
     
 
