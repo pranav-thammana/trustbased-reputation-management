@@ -5,17 +5,21 @@ pub struct AdjacencyMatrix {
 }
 
 impl AdjacencyMatrix {
-    pub fn create(list: Vec<(u32, u32, i8)>, default: i8, n: u32) -> AdjacencyMatrix {
-        let mut result: Vec<Vec<i8>> = vec![vec![default; n as usize]; n as usize];
+    pub fn create(list: Vec<(u32, u32, i8)>, offset: i8, n: u32) -> AdjacencyMatrix {
+        // Given a list of edges and weights construct adjacency matrix
+        let mut result: Vec<Vec<i8>> = vec![vec![offset; n as usize]; n as usize]; // Initialize vectors with default value (in this case 0)
         for i in list {
-            result[i.0 as usize - 1][i.1 as usize - 1] = i.2 // nth node is the n-1 index
+            result[i.0 as usize - 1][i.1 as usize - 1] = i.2 + offset // nth node is the n-1 index
         }
-        let mut ntd: Vec<u64> = Vec::new();
-        for i in 0..*&result.len() {
+        let mut ntd: Vec<u64> = Vec::new(); // Going through each row and appending the sum to normalized trust denominator
+        for i in 0..result.len() {
+            if result[i].len() != 6005_usize {
+                println!("{}", i);
+            }
             let mut sum: u64 = 0_u64;
-            for j in 0..*&result.len() {
-                if &result[i][j] > &0_i8 {
-                    sum += *&result[i][j] as u64;
+            for j in 0..result.len() {
+                if result[i][j] > 0_i8 { // Only contribute to sum if the weight is greater than 0
+                    sum += result[i][j] as u64 + offset as u64;
                 }
             }
             ntd.push(sum)
