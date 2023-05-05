@@ -1,11 +1,8 @@
-use std::fs;
 pub mod graph;
 pub mod eigentrust;
-use std::time::Duration;
 use std::thread::available_parallelism;
-use std::rc::Rc;
-use std::{thread, mem};
-use std::sync::{mpsc, Mutex, Arc};
+use std::{thread};
+use std::sync::{Arc};
 use plotly::{Plot, Scatter};
 use plotly::common::Mode;
 
